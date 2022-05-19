@@ -1,0 +1,61 @@
+---
+title: "Regresión"
+output: pdf_document
+date: "2022-05-19"
+---
+
+# Regresión Múltiple
+
+A continuación podrás ver cómo se usa un nuevo formato llamado (Rmarkdown) para documentar un análisis de regresión múltiple. En este caso, vamos a compilar el RMarkdown en PDF. 
+
+# CASO FENAVI
+FENAVI es una entidad gremial que representa al sector avícola nacional cuyos principales objetivos son asegurar su crecimiento, competitividad y sostenibilidad, mediante acompañamientos tecnológicos, sanitarios, de capacitación e investigación a los productores de pollo, de manera que influya en el bienestar del sector avícola, además de incidir en la exploración a nuevos mercados con el fin de ampliar la oferta de productos que satisfagan las necesidades y expectativas de los clientes tanto nacionales como internacionales.
+
+Actualmente tiene diferentes programas de desarrollo del sector, uno de ellos es el programa Pollo. En este programa, FENAVI planea, diseña y ejecuta actividades encaminadas a promover el consumo de pollo y conocer al consumidor colombiano y extranjero. Proporciona a través de la academia y expertos, herramientas de gestión empresarial a los productores para incentivar la innovación en todos los ámbitos de manera que se logre competitividad de talla internacional.
+Dentro del programa “Pollo” se tienen diferentes estadísticas asociadas al consumo de pollo per cápita en Colombia durante los últimos 24 meses (diciembre 2019). Las variables a considerar son las siguientes:
+
+Y= consumo per cápita de pollo, en libras.
+X1= Ingreso per cápita constante disponible, en miles de $.
+X2= Precio real al menudeo del pollo por libra, en miles de $
+X3= Precio real al menudeo del cerdo por libra, en miles de $
+X4= Precio  real al menudeo de la carne de res por libra, en miles de $
+X5= precio real compuesto de los sustitutos del pollo por libra, en miles de $. 
+
+Esta última variable se obtiene mediante un promedio ponderado de los precios reales al menudeo por libra de cerdo y de la carne de res; las ponderaciones son los consumos relativos de la carne de res y de cerdo en estos consumos totales.
+
+El archivo de Excel se abre de la siguiente manera:
+
+```{r}
+library(readxl)
+FENAVI <- read_excel("Documents/Base Regresión caso FENAVI.xlsx")
+FENAVI <- FENAVI[2:7]
+```
+
+Si quisiéramos ver cómo se relacionan las variables, podríamos calcular una matriz de correlaciones así:
+
+```{r}
+library(psych)
+pairs.panels(FENAVI, 
+             method = "pearson", 
+             hist.col = "lightgreen",
+             density = TRUE,  
+             ellipses = TRUE,
+             pch = 10,
+             cex = 1,
+             cex.axis = 1.8,
+             cex.labels = 1,
+             lwd = 2,
+             rug = TRUE,
+             stars = TRUE
+)
+
+```
+
+Claramente, la variable Y guarda una correlación muy alta con el resto de las variables, pero... ¿Cómo podemos saber cuál de todas estas variables es la más importante? Para ello podemos correr una regresión múltiple así:
+
+```{r}
+modelo <- lm(Y ~ X1 + X2 + X3 + X4 + X5, data = FENAVI)
+summary(modelo)
+```
+
+De los números que salen en la tabla anterior, debemos fijarnos en el valor del estimado cuyo valor sea el más alejado de cero. Ese es el criterio práctico para definir cuál de las variables predictoras (VARIABLES X) es la más importante a la hora de predecir la variable dependiente (VARIABLE Y)
